@@ -43,6 +43,18 @@ jobs:
           severity-cutoff: critical
           only-fixed: true
           output-format: sarif
+      # Make findings readable in the job log and run summary, not just the Security tab.
+      - name: Show findings
+        if: always()
+        run: |
+          docker run --rm anchore/grype:latest "${{ matrix.image }}" --only-fixed -o table > grype.txt || true
+          cat grype.txt
+          {
+            echo "### Grype: \`${{ matrix.image }}\` (fixable vulns only)"
+            echo '```'
+            cat grype.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
       - uses: github/codeql-action/upload-sarif@v3
         if: always() && steps.scan.outputs.sarif != ''
         with:
