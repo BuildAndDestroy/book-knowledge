@@ -1,0 +1,50 @@
+name: Image scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1" # weekly — new CVEs land in unchanged images
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  images:
+    name: List compose images
+    runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.list.outputs.images }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list
+        run: echo "images=$(docker compose config --images | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
+
+  scan:
+    name: Grype ${{ matrix.image }}
+    needs: images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(needs.images.outputs.images) }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: scan
+        uses: anchore/scan-action@v6
+        with:
+          image: ${{ matrix.image }}
+          fail-build: true
+          severity-cutoff: critical
+          only-fixed: true
+          output-format: sarif
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always() && steps.scan.outputs.sarif != ''
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+          category: grype-${{ matrix.image }}
