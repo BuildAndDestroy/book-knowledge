@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "book-knowledge": {
+      "command": "/path/to/book-knowledge/.venv/bin/book-mcp",
+      "env": {
+        "QDRANT_URL": "http://localhost:6333",
+        "BOOK_COLLECTION": "books",
+        "DEFAULT_TAGS": "malware,redteam"
+      }
+    }
+  }
+}
