@@ -1,0 +1,23 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+
+# Local data / models (data/ holds extracted book text — also copyrighted)
+data/
+.fastembed_cache/
+
+# Books are copyrighted — never commit them. Users supply their own.
+# Everything in books/ is ignored except the placeholder README.
+books/*
+!books/README.md
+*.pdf
+*.epub
+*.mobi
+*.azw3
+
+# Env
+.env
