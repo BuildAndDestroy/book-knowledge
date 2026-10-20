@@ -1,0 +1,32 @@
+[project]
+name = "book-knowledge"
+version = "0.1.0"
+description = "Centralized book knowledge base for AI agents: PDF -> Qdrant hybrid search via MCP"
+requires-python = ">=3.10"
+dependencies = [
+    "qdrant-client[fastembed]>=1.12",
+    # 2.0 shipped empty on PyPI; pin to the known-good 0.0.x line.
+    "pymupdf4llm>=0.0.17,<0.1",
+    "pymupdf>=1.24",
+    "mcp>=1.2.0,<2",
+    "python-dotenv>=1.0",
+    "typer>=0.12",
+]
+
+[project.optional-dependencies]
+rerank = [
+    # Cross-encoder reranking via FastEmbed (CPU/ONNX)
+    "fastembed>=0.4",
+]
+
+[project.scripts]
+ingest = "book_knowledge.ingest:app"
+book-search = "book_knowledge.search:cli"
+book-mcp = "book_knowledge.mcp_server:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
